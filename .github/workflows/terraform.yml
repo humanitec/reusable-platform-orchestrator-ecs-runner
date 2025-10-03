@@ -7,8 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  terraform-fmt:
-    name: Terraform Format Check
+  terraform-validation:
+    name: Terraform Validation and Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -17,22 +17,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.6.0"
+          terraform_version: "1.5.7"
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
-
-  terraform-validate:
-    name: Terraform Validate
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.6.0"
 
       - name: Terraform Init
         run: terraform init -backend=false
@@ -40,70 +28,5 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-  terraform-test:
-    name: Terraform Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.6.0"
-
-      - name: Create test directory
-        run: mkdir -p tests
-
-      - name: Create test configuration
-        run: |
-          cat > tests/main.tf << 'EOF'
-          terraform {
-            required_version = ">= 1.0"
-          }
-
-          module "test_with_runner_id" {
-            source    = "../"
-            region    = "us-east-1"
-            runner_id = "test-runner"
-          }
-
-          module "test_with_prefix" {
-            source           = "../"
-            region           = "eu-west-1"
-            runner_id_prefix = "test-prefix"
-          }
-
-          module "test_defaults" {
-            source = "../"
-            region = "ap-southeast-1"
-          }
-
-          output "test_runner_id_1" {
-            value = module.test_with_runner_id.runner_id
-          }
-
-          output "test_runner_id_2" {
-            value = module.test_with_prefix.runner_id
-          }
-
-          output "test_runner_id_3" {
-            value = module.test_defaults.runner_id
-          }
-          EOF
-
-      - name: Terraform Init (tests)
-        working-directory: tests
-        run: terraform init
-
-      - name: Terraform Validate (tests)
-        working-directory: tests
-        run: terraform validate
-
-      - name: Terraform Plan (tests)
-        working-directory: tests
-        run: terraform plan
-
-      - name: Clean up test directory
-        if: always()
-        run: rm -rf tests
+      - name: Terraform Test
+        run: terraform test

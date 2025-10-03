@@ -10,7 +10,7 @@ This module provides a reusable configuration for deploying an ECS-based runner 
 
 | Name | Version |
 |------|---------|
-| terraform | >= 1.0 |
+| terraform | >= 1.5.0 |
 | aws | >= 4.0 |
 | random | >= 3.0 |
 | platform-orchestrator | ~> 2.0 |
