@@ -49,6 +49,17 @@ module "ecs_runner" {
 }
 ```
 
+### With Existing ECS Cluster
+
+```hcl
+module "ecs_runner" {
+  source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
+  
+  region           = "us-east-1"
+  ecs_cluster_name = "existing-cluster"
+}
+```
+
 ## Variables
 
 | Name | Description | Type | Default | Required |
@@ -56,6 +67,7 @@ module "ecs_runner" {
 | region | The AWS region where resources will be created | `string` | n/a | yes |
 | runner_id | The ID of the runner. If not provided, one will be generated using runner_id_prefix | `string` | `null` | no |
 | runner_id_prefix | The prefix to use when generating a runner ID. Only used if runner_id is not provided | `string` | `"runner"` | no |
+| ecs_cluster_name | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string` | `null` | no |
 
 ## Outputs
 
@@ -66,6 +78,8 @@ module "ecs_runner" {
 | task_role_arn | The ARN of the ECS task role |
 | runner_id | The ID of the runner |
 | s3_bucket | The name of the S3 bucket |
+| ecs_cluster_name | The name of the ECS cluster (either existing or newly created) |
+| ecs_cluster_arn | The ARN of the ECS cluster |
 
 ## License
 

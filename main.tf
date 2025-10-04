@@ -9,5 +9,37 @@ resource "random_id" "runner_id" {
 }
 
 locals {
-  runner_id = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
+  runner_id           = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
+  create_ecs_cluster  = var.ecs_cluster_name == null
+  ecs_cluster_name    = var.ecs_cluster_name != null ? var.ecs_cluster_name : aws_ecs_cluster.main[0].name
+}
+
+# Create a new ECS cluster if one is not provided
+resource "aws_ecs_cluster" "main" {
+  count = local.create_ecs_cluster ? 1 : 0
+  name  = "${local.runner_id}-cluster"
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+
+  tags = {
+    Name      = "${local.runner_id}-cluster"
+    ManagedBy = "terraform"
+  }
+}
+
+# Enable Fargate capacity provider for the cluster
+resource "aws_ecs_cluster_capacity_providers" "main" {
+  count        = local.create_ecs_cluster ? 1 : 0
+  cluster_name = aws_ecs_cluster.main[0].name
+
+  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+
+  default_capacity_provider_strategy {
+    capacity_provider = "FARGATE"
+    weight            = 1
+    base              = 1
+  }
 }

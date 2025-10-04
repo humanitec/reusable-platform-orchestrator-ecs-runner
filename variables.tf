@@ -14,3 +14,9 @@ variable "runner_id_prefix" {
   type        = string
   default     = "runner"
 }
+
+variable "ecs_cluster_name" {
+  description = "The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created"
+  type        = string
+  default     = null
+}

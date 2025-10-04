@@ -22,3 +22,13 @@ output "s3_bucket" {
   description = "The name of the S3 bucket"
   value       = ""
 }
+
+output "ecs_cluster_name" {
+  description = "The name of the ECS cluster (either existing or newly created)"
+  value       = local.ecs_cluster_name
+}
+
+output "ecs_cluster_arn" {
+  description = "The ARN of the ECS cluster"
+  value       = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : ""
+}
