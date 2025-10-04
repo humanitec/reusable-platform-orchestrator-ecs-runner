@@ -37,3 +37,23 @@ output "ecs_task_manager_role_arn" {
   description = "The ARN of the IAM role for managing ECS tasks"
   value       = aws_iam_role.ecs_task_manager.arn
 }
+
+output "cloudwatch_log_group_name" {
+  description = "The name of the CloudWatch log group for ECS tasks"
+  value       = aws_cloudwatch_log_group.ecs_tasks.name
+}
+
+output "cloudwatch_log_group_arn" {
+  description = "The ARN of the CloudWatch log group for ECS tasks"
+  value       = aws_cloudwatch_log_group.ecs_tasks.arn
+}
+
+output "cloudwatch_exec_log_group_name" {
+  description = "The name of the CloudWatch log group for ECS Exec"
+  value       = aws_cloudwatch_log_group.ecs_exec.name
+}
+
+output "cloudwatch_exec_log_group_arn" {
+  description = "The ARN of the CloudWatch log group for ECS Exec"
+  value       = aws_cloudwatch_log_group.ecs_exec.arn
+}
