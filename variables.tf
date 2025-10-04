@@ -26,3 +26,19 @@ variable "additional_tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "subnet_ids" {
+  description = "List of subnet IDs where ECS tasks will be launched. At least one subnet is required"
+  type        = list(string)
+
+  validation {
+    condition     = length(var.subnet_ids) > 0
+    error_message = "At least one subnet ID must be provided"
+  }
+}
+
+variable "security_group_ids" {
+  description = "Optional list of security group IDs to attach to ECS tasks"
+  type        = list(string)
+  default     = []
+}

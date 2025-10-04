@@ -23,7 +23,8 @@ This module provides a reusable configuration for deploying an ECS-based runner 
 module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
-  region = "us-east-1"
+  region     = "us-east-1"
+  subnet_ids = ["subnet-12345678", "subnet-87654321"]
 }
 ```
 
@@ -33,8 +34,9 @@ module "ecs_runner" {
 module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
-  region    = "us-east-1"
-  runner_id = "my-custom-runner"
+  region     = "us-east-1"
+  subnet_ids = ["subnet-12345678", "subnet-87654321"]
+  runner_id  = "my-custom-runner"
 }
 ```
 
@@ -45,6 +47,7 @@ module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
   region           = "us-east-1"
+  subnet_ids       = ["subnet-12345678", "subnet-87654321"]
   runner_id_prefix = "prod-runner"
 }
 ```
@@ -56,6 +59,7 @@ module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
   region           = "us-east-1"
+  subnet_ids       = ["subnet-12345678", "subnet-87654321"]
   ecs_cluster_name = "existing-cluster"
 }
 ```
@@ -66,7 +70,8 @@ module "ecs_runner" {
 module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
-  region = "us-east-1"
+  region     = "us-east-1"
+  subnet_ids = ["subnet-12345678", "subnet-87654321"]
   
   additional_tags = {
     Environment = "production"
@@ -76,14 +81,28 @@ module "ecs_runner" {
 }
 ```
 
+### With Subnets and Security Groups
+
+```hcl
+module "ecs_runner" {
+  source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
+  
+  region             = "us-east-1"
+  subnet_ids         = ["subnet-12345678", "subnet-87654321"]
+  security_group_ids = ["sg-12345678"]
+}
+```
+
 ## Variables
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | region | The AWS region where resources will be created | `string` | n/a | yes |
+| subnet_ids | List of subnet IDs where ECS tasks will be launched. At least one subnet is required | `list(string)` | n/a | yes |
 | runner_id | The ID of the runner. If not provided, one will be generated using runner_id_prefix | `string` | `null` | no |
 | runner_id_prefix | The prefix to use when generating a runner ID. Only used if runner_id is not provided | `string` | `"runner"` | no |
 | ecs_cluster_name | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string` | `null` | no |
+| security_group_ids | Optional list of security group IDs to attach to ECS tasks | `list(string)` | `[]` | no |
 | additional_tags | Additional tags to apply to resources created by this module | `map(string)` | `{}` | no |
 
 ## Outputs
@@ -93,6 +112,7 @@ module "ecs_runner" {
 | humanitec_role_arn | The ARN of the IAM role for Humanitec |
 | execution_role_arn | The ARN of the ECS task execution role |
 | task_role_arn | The ARN of the ECS task role |
+| ecs_task_manager_role_arn | The ARN of the IAM role for managing ECS tasks |
 | runner_id | The ID of the runner |
 | s3_bucket | The name of the S3 bucket |
 | ecs_cluster_name | The name of the ECS cluster (either existing or newly created) |

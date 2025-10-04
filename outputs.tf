@@ -32,3 +32,8 @@ output "ecs_cluster_arn" {
   description = "The ARN of the ECS cluster"
   value       = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : ""
 }
+
+output "ecs_task_manager_role_arn" {
+  description = "The ARN of the IAM role for managing ECS tasks"
+  value       = aws_iam_role.ecs_task_manager.arn
+}

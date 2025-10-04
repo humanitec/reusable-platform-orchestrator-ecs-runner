@@ -11,8 +11,9 @@ run "test_with_explicit_runner_id" {
   command = plan
 
   variables {
-    region    = "us-east-1"
-    runner_id = "test-runner"
+    region     = "us-east-1"
+    subnet_ids = ["subnet-12345678", "subnet-87654321"]
+    runner_id  = "test-runner"
   }
 
   assert {
@@ -26,6 +27,7 @@ run "test_with_custom_prefix" {
 
   variables {
     region           = "eu-west-1"
+    subnet_ids       = ["subnet-12345678"]
     runner_id_prefix = "test-prefix"
   }
 
@@ -37,7 +39,8 @@ run "test_with_defaults" {
   command = plan
 
   variables {
-    region = "ap-southeast-1"
+    region     = "ap-southeast-1"
+    subnet_ids = ["subnet-abc123"]
   }
 
   # Note: runner_id and ecs_cluster_name contain random values only known at apply time
@@ -49,6 +52,7 @@ run "test_with_existing_cluster" {
 
   variables {
     region           = "us-west-2"
+    subnet_ids       = ["subnet-xyz789"]
     ecs_cluster_name = "existing-cluster"
   }
 
@@ -64,7 +68,8 @@ run "test_with_additional_tags" {
   command = plan
 
   variables {
-    region = "us-east-1"
+    region     = "us-east-1"
+    subnet_ids = ["subnet-test123"]
     additional_tags = {
       Environment = "test"
       Team        = "platform"
@@ -73,4 +78,16 @@ run "test_with_additional_tags" {
 
   # Note: runner_id and ecs_cluster_name contain random values only known at apply time
   # This test just validates that the plan succeeds with additional tags
+}
+
+run "test_with_security_groups" {
+  command = plan
+
+  variables {
+    region             = "us-east-1"
+    subnet_ids         = ["subnet-test456"]
+    security_group_ids = ["sg-12345678", "sg-87654321"]
+  }
+
+  # This test validates that the plan succeeds with security groups specified
 }
