@@ -20,3 +20,9 @@ variable "ecs_cluster_name" {
   type        = string
   default     = null
 }
+
+variable "additional_tags" {
+  description = "Additional tags to apply to resources created by this module"
+  type        = map(string)
+  default     = {}
+}

@@ -60,6 +60,22 @@ module "ecs_runner" {
 }
 ```
 
+### With Additional Tags
+
+```hcl
+module "ecs_runner" {
+  source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
+  
+  region = "us-east-1"
+  
+  additional_tags = {
+    Environment = "production"
+    Team        = "platform"
+    CostCenter  = "engineering"
+  }
+}
+```
+
 ## Variables
 
 | Name | Description | Type | Default | Required |
@@ -68,6 +84,7 @@ module "ecs_runner" {
 | runner_id | The ID of the runner. If not provided, one will be generated using runner_id_prefix | `string` | `null` | no |
 | runner_id_prefix | The prefix to use when generating a runner ID. Only used if runner_id is not provided | `string` | `"runner"` | no |
 | ecs_cluster_name | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string` | `null` | no |
+| additional_tags | Additional tags to apply to resources created by this module | `map(string)` | `{}` | no |
 
 ## Outputs
 

@@ -12,8 +12,8 @@ run "test_with_explicit_runner_id" {
   }
 
   assert {
-    condition     = output.ecs_cluster_name == "test-runner-cluster"
-    error_message = "ECS cluster name should be based on runner ID"
+    condition     = can(regex("^test-runner-cluster-[a-f0-9]+$", output.ecs_cluster_name))
+    error_message = "ECS cluster name should be based on runner ID with random suffix"
   }
 }
 
@@ -36,8 +36,8 @@ run "test_with_custom_prefix" {
   }
 
   assert {
-    condition     = length(output.ecs_cluster_name) > 0
-    error_message = "ECS cluster name should be generated"
+    condition     = can(regex("^test-prefix-[a-f0-9]+-cluster-[a-f0-9]+$", output.ecs_cluster_name))
+    error_message = "ECS cluster name should be generated with runner ID and random suffix"
   }
 }
 
@@ -59,8 +59,8 @@ run "test_with_defaults" {
   }
 
   assert {
-    condition     = length(output.ecs_cluster_name) > 0
-    error_message = "ECS cluster name should be generated"
+    condition     = can(regex("^runner-[a-f0-9]+-cluster-[a-f0-9]+$", output.ecs_cluster_name))
+    error_message = "ECS cluster name should be generated with default prefix and random suffix"
   }
 }
 
@@ -80,5 +80,27 @@ run "test_with_existing_cluster" {
   assert {
     condition     = length(output.runner_id) > 0
     error_message = "Runner ID should still be generated"
+  }
+}
+
+run "test_with_additional_tags" {
+  command = plan
+
+  variables {
+    region = "us-east-1"
+    additional_tags = {
+      Environment = "test"
+      Team        = "platform"
+    }
+  }
+
+  assert {
+    condition     = length(output.runner_id) > 0
+    error_message = "Runner ID should be generated"
+  }
+
+  assert {
+    condition     = length(output.ecs_cluster_name) > 0
+    error_message = "ECS cluster name should be generated"
   }
 }

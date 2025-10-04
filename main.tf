@@ -8,6 +8,12 @@ resource "random_id" "runner_id" {
   prefix      = "${var.runner_id_prefix}-"
 }
 
+# Generate a random suffix for the cluster name to avoid conflicts
+resource "random_id" "cluster_suffix" {
+  count       = local.create_ecs_cluster ? 1 : 0
+  byte_length = 4
+}
+
 locals {
   runner_id           = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
   create_ecs_cluster  = var.ecs_cluster_name == null
@@ -17,17 +23,19 @@ locals {
 # Create a new ECS cluster if one is not provided
 resource "aws_ecs_cluster" "main" {
   count = local.create_ecs_cluster ? 1 : 0
-  name  = "${local.runner_id}-cluster"
+  name  = "${local.runner_id}-cluster-${random_id.cluster_suffix[0].hex}"
 
   setting {
     name  = "containerInsights"
     value = "enabled"
   }
 
-  tags = {
-    Name      = "${local.runner_id}-cluster"
-    ManagedBy = "terraform"
-  }
+  tags = merge(
+    {
+      ManagedBy = "terraform"
+    },
+    var.additional_tags
+  )
 }
 
 # Enable Fargate capacity provider for the cluster
