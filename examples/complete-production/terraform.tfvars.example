@@ -1,0 +1,28 @@
+# AWS Configuration
+region = "us-east-1"
+
+# Environment
+environment = "production"
+
+# Networking
+vpc_id     = "vpc-12345678"
+subnet_ids = ["subnet-12345678", "subnet-87654321", "subnet-11223344"]
+
+# Humanitec
+humanitec_org_id = "my-org-id"
+runner_id        = "prod-runner" # Optional, will be generated if not provided
+
+# Logging
+cloudwatch_log_retention_days = 90
+
+# IAM (Optional)
+# iam_role_permissions_boundary = "arn:aws:iam::123456789012:policy/EnterprisePermissionsBoundary"
+
+# Tagging
+cost_center      = "platform-engineering"
+compliance_scope = "sox,iso27001,pci"
+owner_email      = "platform-team@example.com"
+
+# Monitoring
+alarm_email                     = "ops-team@example.com"
+s3_bucket_size_alarm_threshold  = 107374182400 # 100 GB in bytes
