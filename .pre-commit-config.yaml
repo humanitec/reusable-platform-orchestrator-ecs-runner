@@ -1,0 +1,57 @@
+# Pre-commit hooks for Terraform code quality
+# Install: https://pre-commit.com/
+# Usage: pre-commit install
+
+repos:
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.86.0
+    hooks:
+      - id: terraform_fmt
+        name: Terraform format
+        description: Rewrites all Terraform configuration files to a canonical format
+      - id: terraform_validate
+        name: Terraform validate
+        description: Validates all Terraform configuration files
+      - id: terraform_docs
+        name: Terraform docs
+        description: Inserts input and output documentation into README.md
+        args:
+          - --hook-config=--path-to-file=README.md
+          - --hook-config=--add-to-existing-file=true
+          - --hook-config=--create-file-if-not-exist=true
+      - id: terraform_tflint
+        name: Terraform tflint
+        description: Validates all Terraform configuration files with TFLint
+        args:
+          - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
+      - id: terraform_checkov
+        name: Terraform checkov
+        description: Runs checkov on Terraform files for security scanning
+        args:
+          - --args=--quiet
+          - --args=--framework=terraform
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Fix end of files
+      - id: check-yaml
+        name: Check YAML files
+      - id: check-added-large-files
+        name: Check for large files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      - id: detect-private-key
+        name: Detect private keys
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        name: Prettier
+        description: Format Markdown and YAML files
+        types_or: [markdown, yaml]
