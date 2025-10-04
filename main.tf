@@ -15,9 +15,9 @@ resource "random_id" "cluster_suffix" {
 }
 
 locals {
-  runner_id           = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
-  create_ecs_cluster  = var.ecs_cluster_name == null
-  ecs_cluster_name    = var.ecs_cluster_name != null ? var.ecs_cluster_name : aws_ecs_cluster.main[0].name
+  runner_id          = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
+  create_ecs_cluster = var.ecs_cluster_name == null
+  ecs_cluster_name   = var.ecs_cluster_name != null ? var.ecs_cluster_name : aws_ecs_cluster.main[0].name
 }
 
 # Create a new ECS cluster if one is not provided
