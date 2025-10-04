@@ -104,7 +104,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
         Action = [
           "ecs:RegisterTaskDefinition",
           "ecs:DeregisterTaskDefinition",
-          "ecs:DescribeTaskDefinition",
+          "ecs:DeleteTaskDefinition",
           "ecs:ListTaskDefinitions"
         ]
         Resource = "*"
@@ -116,7 +116,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
           "ecs:UntagResource",
           "ecs:ListTagsForResource"
         ]
-        Resource = "*"
+        Resource = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : "arn:aws:ecs:${var.region}:*:cluster/${var.ecs_cluster_name}"
       },
       {
         Effect = "Allow"
