@@ -8,14 +8,8 @@ resource "random_id" "runner_id" {
   prefix      = "${var.runner_id_prefix}-"
 }
 
-# Generate a random suffix for the cluster name to avoid conflicts
-resource "random_id" "cluster_suffix" {
-  count       = local.create_ecs_cluster ? 1 : 0
-  byte_length = 4
-}
-
-# Generate a random suffix for IAM role names to avoid conflicts
-resource "random_id" "role_suffix" {
+# Generate a random suffix to avoid naming conflicts
+resource "random_id" "suffix" {
   byte_length = 4
 }
 
@@ -29,7 +23,7 @@ locals {
 # Create a new ECS cluster if one is not provided
 resource "aws_ecs_cluster" "main" {
   count = local.create_ecs_cluster ? 1 : 0
-  name  = "${local.runner_id}-cluster-${random_id.cluster_suffix[0].hex}"
+  name  = "${local.runner_id}-cluster-${random_id.suffix.hex}"
 
   setting {
     name  = "containerInsights"
@@ -76,7 +70,7 @@ resource "aws_iam_openid_connect_provider" "oidc" {
 
 # IAM role for managing ECS tasks with OIDC federation
 resource "aws_iam_role" "ecs_task_manager" {
-  name = "${local.runner_id}-ecs-task-manager-${random_id.role_suffix.hex}"
+  name = "${local.runner_id}-ecs-task-manager-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -186,7 +180,7 @@ resource "aws_s3_bucket_public_access_block" "runner" {
 
 # IAM role for ECS task execution
 resource "aws_iam_role" "execution" {
-  name = "${local.runner_id}-execution-${random_id.role_suffix.hex}"
+  name = "${local.runner_id}-execution-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -217,7 +211,7 @@ resource "aws_iam_role_policy_attachment" "execution" {
 
 # IAM role for ECS tasks
 resource "aws_iam_role" "task" {
-  name = "${local.runner_id}-task-${random_id.role_suffix.hex}"
+  name = "${local.runner_id}-task-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
