@@ -15,9 +15,15 @@ resource "random_id" "suffix" {
 
 locals {
   runner_id          = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
-  create_ecs_cluster = var.ecs_cluster_name == null
-  ecs_cluster_name   = var.ecs_cluster_name != null ? var.ecs_cluster_name : aws_ecs_cluster.main[0].name
-  ecs_cluster_arn    = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : "arn:aws:ecs:${var.region}:*:cluster/${var.ecs_cluster_name}"
+  create_ecs_cluster = var.existing_ecs_cluster_name == null
+  ecs_cluster_name   = var.existing_ecs_cluster_name != null ? var.existing_ecs_cluster_name : aws_ecs_cluster.main[0].name
+  ecs_cluster_arn    = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : "arn:aws:ecs:${var.region}:*:cluster/${var.existing_ecs_cluster_name}"
+  common_tags = merge(
+    {
+      ManagedBy = "terraform"
+    },
+    var.additional_tags
+  )
 }
 
 # Create a new ECS cluster if one is not provided
@@ -30,12 +36,7 @@ resource "aws_ecs_cluster" "main" {
     value = "enabled"
   }
 
-  tags = merge(
-    {
-      ManagedBy = "terraform"
-    },
-    var.additional_tags
-  )
+  tags = local.common_tags
 }
 
 # Enable Fargate capacity provider for the cluster
@@ -60,12 +61,7 @@ resource "aws_iam_openid_connect_provider" "oidc" {
   ]
   thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
 
-  tags = merge(
-    {
-      ManagedBy = "terraform"
-    },
-    var.additional_tags
-  )
+  tags = local.common_tags
 }
 
 # IAM role for managing ECS tasks with OIDC federation
@@ -91,12 +87,7 @@ resource "aws_iam_role" "ecs_task_manager" {
     ]
   })
 
-  tags = merge(
-    {
-      ManagedBy = "terraform"
-    },
-    var.additional_tags
-  )
+  tags = local.common_tags
 }
 
 # IAM policy for ECS task management
@@ -160,12 +151,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
 resource "aws_s3_bucket" "runner" {
   bucket = "${local.runner_id}-artifacts"
 
-  tags = merge(
-    {
-      ManagedBy = "terraform"
-    },
-    var.additional_tags
-  )
+  tags = local.common_tags
 }
 
 # Block public access to the S3 bucket
@@ -195,12 +181,7 @@ resource "aws_iam_role" "execution" {
     ]
   })
 
-  tags = merge(
-    {
-      ManagedBy = "terraform"
-    },
-    var.additional_tags
-  )
+  tags = local.common_tags
 }
 
 # Attach AWS managed policy for ECS task execution
@@ -222,16 +203,18 @@ resource "aws_iam_role" "task" {
         Principal = {
           Service = "ecs-tasks.amazonaws.com"
         }
+      },
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          AWS = aws_iam_role.ecs_task_manager.arn
+        }
       }
     ]
   })
 
-  tags = merge(
-    {
-      ManagedBy = "terraform"
-    },
-    var.additional_tags
-  )
+  tags = local.common_tags
 }
 
 # IAM policy for ECS task to access S3 bucket

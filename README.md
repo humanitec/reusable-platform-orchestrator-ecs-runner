@@ -61,10 +61,10 @@ module "ecs_runner" {
 module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
-  region           = "us-east-1"
-  subnet_ids       = ["subnet-12345678", "subnet-87654321"]
-  humanitec_org_id = "my-org-id"
-  ecs_cluster_name = "existing-cluster"
+  region                    = "us-east-1"
+  subnet_ids                = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id          = "my-org-id"
+  existing_ecs_cluster_name = "existing-cluster"
 }
 ```
 
@@ -108,7 +108,7 @@ module "ecs_runner" {
 | humanitec_org_id | The Humanitec organization ID for OIDC federation | `string` | n/a | yes |
 | runner_id | The ID of the runner. If not provided, one will be generated using runner_id_prefix | `string` | `null` | no |
 | runner_id_prefix | The prefix to use when generating a runner ID. Only used if runner_id is not provided | `string` | `"runner"` | no |
-| ecs_cluster_name | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string` | `null` | no |
+| existing_ecs_cluster_name | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string` | `null` | no |
 | security_group_ids | Optional list of security group IDs to attach to ECS tasks | `list(string)` | `[]` | no |
 | additional_tags | Additional tags to apply to resources created by this module | `map(string)` | `{}` | no |
 

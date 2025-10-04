@@ -54,10 +54,10 @@ run "test_with_existing_cluster" {
   command = plan
 
   variables {
-    region           = "us-west-2"
-    subnet_ids       = ["subnet-xyz789"]
-    ecs_cluster_name = "existing-cluster"
-    humanitec_org_id = "test-org-abc"
+    region                    = "us-west-2"
+    subnet_ids                = ["subnet-xyz789"]
+    existing_ecs_cluster_name = "existing-cluster"
+    humanitec_org_id          = "test-org-abc"
   }
 
   assert {
