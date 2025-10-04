@@ -14,10 +14,16 @@ resource "random_id" "cluster_suffix" {
   byte_length = 4
 }
 
+# Generate a random suffix for IAM role names to avoid conflicts
+resource "random_id" "role_suffix" {
+  byte_length = 4
+}
+
 locals {
   runner_id          = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
   create_ecs_cluster = var.ecs_cluster_name == null
   ecs_cluster_name   = var.ecs_cluster_name != null ? var.ecs_cluster_name : aws_ecs_cluster.main[0].name
+  ecs_cluster_arn    = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : "arn:aws:ecs:${var.region}:*:cluster/${var.ecs_cluster_name}"
 }
 
 # Create a new ECS cluster if one is not provided
@@ -70,7 +76,7 @@ resource "aws_iam_openid_connect_provider" "oidc" {
 
 # IAM role for managing ECS tasks with OIDC federation
 resource "aws_iam_role" "ecs_task_manager" {
-  name = "${local.runner_id}-ecs-task-manager"
+  name = "${local.runner_id}-ecs-task-manager-${random_id.role_suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -117,7 +123,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
         Resource = "*"
         Condition = {
           StringEquals = {
-            "ecs:cluster" = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : "arn:aws:ecs:${var.region}:*:cluster/${var.ecs_cluster_name}"
+            "ecs:cluster" = local.ecs_cluster_arn
           }
         }
       },
@@ -129,7 +135,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
           "ecs:DeleteTaskDefinition",
           "ecs:ListTaskDefinitions"
         ]
-        Resource = "*"
+        Resource = local.ecs_cluster_arn
       },
       {
         Effect = "Allow"
@@ -138,7 +144,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
           "ecs:UntagResource",
           "ecs:ListTagsForResource"
         ]
-        Resource = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : "arn:aws:ecs:${var.region}:*:cluster/${var.ecs_cluster_name}"
+        Resource = local.ecs_cluster_arn
       },
       {
         Effect = "Allow"
@@ -168,15 +174,6 @@ resource "aws_s3_bucket" "runner" {
   )
 }
 
-# Enable versioning for the S3 bucket
-resource "aws_s3_bucket_versioning" "runner" {
-  bucket = aws_s3_bucket.runner.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
 # Block public access to the S3 bucket
 resource "aws_s3_bucket_public_access_block" "runner" {
   bucket = aws_s3_bucket.runner.id
@@ -185,4 +182,84 @@ resource "aws_s3_bucket_public_access_block" "runner" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+# IAM role for ECS task execution
+resource "aws_iam_role" "execution" {
+  name = "${local.runner_id}-execution-${random_id.role_suffix.hex}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = merge(
+    {
+      ManagedBy = "terraform"
+    },
+    var.additional_tags
+  )
+}
+
+# Attach AWS managed policy for ECS task execution
+resource "aws_iam_role_policy_attachment" "execution" {
+  role       = aws_iam_role.execution.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+# IAM role for ECS tasks
+resource "aws_iam_role" "task" {
+  name = "${local.runner_id}-task-${random_id.role_suffix.hex}"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = merge(
+    {
+      ManagedBy = "terraform"
+    },
+    var.additional_tags
+  )
+}
+
+# IAM policy for ECS task to access S3 bucket
+resource "aws_iam_role_policy" "task_s3" {
+  name = "${local.runner_id}-task-s3-policy"
+  role = aws_iam_role.task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.runner.arn,
+          "${aws_s3_bucket.runner.arn}/*"
+        ]
+      }
+    ]
+  })
 }

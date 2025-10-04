@@ -5,12 +5,12 @@ output "humanitec_role_arn" {
 
 output "execution_role_arn" {
   description = "The ARN of the ECS task execution role"
-  value       = ""
+  value       = aws_iam_role.execution.arn
 }
 
 output "task_role_arn" {
   description = "The ARN of the ECS task role"
-  value       = ""
+  value       = aws_iam_role.task.arn
 }
 
 output "runner_id" {
