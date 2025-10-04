@@ -89,7 +89,6 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
         Effect = "Allow"
         Action = [
           "ecs:RunTask",
-          "ecs:StopTask",
           "ecs:DescribeTasks",
           "ecs:ListTasks"
         ]
