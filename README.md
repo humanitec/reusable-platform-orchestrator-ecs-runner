@@ -23,8 +23,9 @@ This module provides a reusable configuration for deploying an ECS-based runner 
 module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
-  region     = "us-east-1"
-  subnet_ids = ["subnet-12345678", "subnet-87654321"]
+  region           = "us-east-1"
+  subnet_ids       = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id = "my-org-id"
 }
 ```
 
@@ -34,9 +35,10 @@ module "ecs_runner" {
 module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
-  region     = "us-east-1"
-  subnet_ids = ["subnet-12345678", "subnet-87654321"]
-  runner_id  = "my-custom-runner"
+  region           = "us-east-1"
+  subnet_ids       = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id = "my-org-id"
+  runner_id        = "my-custom-runner"
 }
 ```
 
@@ -48,6 +50,7 @@ module "ecs_runner" {
   
   region           = "us-east-1"
   subnet_ids       = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id = "my-org-id"
   runner_id_prefix = "prod-runner"
 }
 ```
@@ -60,6 +63,7 @@ module "ecs_runner" {
   
   region           = "us-east-1"
   subnet_ids       = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id = "my-org-id"
   ecs_cluster_name = "existing-cluster"
 }
 ```
@@ -70,8 +74,9 @@ module "ecs_runner" {
 module "ecs_runner" {
   source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
   
-  region     = "us-east-1"
-  subnet_ids = ["subnet-12345678", "subnet-87654321"]
+  region           = "us-east-1"
+  subnet_ids       = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id = "my-org-id"
   
   additional_tags = {
     Environment = "production"
@@ -89,6 +94,7 @@ module "ecs_runner" {
   
   region             = "us-east-1"
   subnet_ids         = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id   = "my-org-id"
   security_group_ids = ["sg-12345678"]
 }
 ```
@@ -99,6 +105,7 @@ module "ecs_runner" {
 |------|-------------|------|---------|:--------:|
 | region | The AWS region where resources will be created | `string` | n/a | yes |
 | subnet_ids | List of subnet IDs where ECS tasks will be launched. At least one subnet is required | `list(string)` | n/a | yes |
+| humanitec_org_id | The Humanitec organization ID for OIDC federation | `string` | n/a | yes |
 | runner_id | The ID of the runner. If not provided, one will be generated using runner_id_prefix | `string` | `null` | no |
 | runner_id_prefix | The prefix to use when generating a runner ID. Only used if runner_id is not provided | `string` | `"runner"` | no |
 | ecs_cluster_name | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string` | `null` | no |

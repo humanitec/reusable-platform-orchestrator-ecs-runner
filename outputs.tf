@@ -1,6 +1,6 @@
 output "humanitec_role_arn" {
   description = "The ARN of the IAM role for Humanitec"
-  value       = ""
+  value       = aws_iam_role.ecs_task_manager.arn
 }
 
 output "execution_role_arn" {
@@ -20,7 +20,7 @@ output "runner_id" {
 
 output "s3_bucket" {
   description = "The name of the S3 bucket"
-  value       = ""
+  value       = aws_s3_bucket.runner.id
 }
 
 output "ecs_cluster_name" {

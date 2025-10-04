@@ -42,3 +42,8 @@ variable "security_group_ids" {
   type        = list(string)
   default     = []
 }
+
+variable "humanitec_org_id" {
+  description = "The Humanitec organization ID for OIDC federation"
+  type        = string
+}

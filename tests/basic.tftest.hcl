@@ -11,9 +11,10 @@ run "test_with_explicit_runner_id" {
   command = plan
 
   variables {
-    region     = "us-east-1"
-    subnet_ids = ["subnet-12345678", "subnet-87654321"]
-    runner_id  = "test-runner"
+    region           = "us-east-1"
+    subnet_ids       = ["subnet-12345678", "subnet-87654321"]
+    runner_id        = "test-runner"
+    humanitec_org_id = "test-org-123"
   }
 
   assert {
@@ -29,6 +30,7 @@ run "test_with_custom_prefix" {
     region           = "eu-west-1"
     subnet_ids       = ["subnet-12345678"]
     runner_id_prefix = "test-prefix"
+    humanitec_org_id = "test-org-456"
   }
 
   # Note: runner_id and ecs_cluster_name contain random values only known at apply time
@@ -39,8 +41,9 @@ run "test_with_defaults" {
   command = plan
 
   variables {
-    region     = "ap-southeast-1"
-    subnet_ids = ["subnet-abc123"]
+    region           = "ap-southeast-1"
+    subnet_ids       = ["subnet-abc123"]
+    humanitec_org_id = "test-org-789"
   }
 
   # Note: runner_id and ecs_cluster_name contain random values only known at apply time
@@ -54,6 +57,7 @@ run "test_with_existing_cluster" {
     region           = "us-west-2"
     subnet_ids       = ["subnet-xyz789"]
     ecs_cluster_name = "existing-cluster"
+    humanitec_org_id = "test-org-abc"
   }
 
   assert {
@@ -68,8 +72,9 @@ run "test_with_additional_tags" {
   command = plan
 
   variables {
-    region     = "us-east-1"
-    subnet_ids = ["subnet-test123"]
+    region           = "us-east-1"
+    subnet_ids       = ["subnet-test123"]
+    humanitec_org_id = "test-org-def"
     additional_tags = {
       Environment = "test"
       Team        = "platform"
@@ -87,6 +92,7 @@ run "test_with_security_groups" {
     region             = "us-east-1"
     subnet_ids         = ["subnet-test456"]
     security_group_ids = ["sg-12345678", "sg-87654321"]
+    humanitec_org_id   = "test-org-ghi"
   }
 
   # This test validates that the plan succeeds with security groups specified

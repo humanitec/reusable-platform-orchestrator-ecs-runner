@@ -52,7 +52,23 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
   }
 }
 
-# IAM role for managing ECS tasks
+# OIDC provider for Humanitec federation
+resource "aws_iam_openid_connect_provider" "oidc" {
+  url = "https://oidc.humanitec.dev"
+  client_id_list = [
+    "sts.amazonaws.com",
+  ]
+  thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
+
+  tags = merge(
+    {
+      ManagedBy = "terraform"
+    },
+    var.additional_tags
+  )
+}
+
+# IAM role for managing ECS tasks with OIDC federation
 resource "aws_iam_role" "ecs_task_manager" {
   name = "${local.runner_id}-ecs-task-manager"
 
@@ -60,10 +76,16 @@ resource "aws_iam_role" "ecs_task_manager" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
+        Action = "sts:AssumeRoleWithWebIdentity"
         Effect = "Allow"
         Principal = {
-          Service = "ecs-tasks.amazonaws.com"
+          Federated = aws_iam_openid_connect_provider.oidc.arn
+        }
+        Condition = {
+          StringEquals = {
+            "oidc.humanitec.dev:aud" = "sts.amazonaws.com"
+            "oidc.humanitec.dev:sub" = "${var.humanitec_org_id}+${local.runner_id}"
+          }
         }
       }
     ]
@@ -132,4 +154,35 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
       }
     ]
   })
+}
+
+# S3 bucket for runner artifacts
+resource "aws_s3_bucket" "runner" {
+  bucket = "${local.runner_id}-artifacts"
+
+  tags = merge(
+    {
+      ManagedBy = "terraform"
+    },
+    var.additional_tags
+  )
+}
+
+# Enable versioning for the S3 bucket
+resource "aws_s3_bucket_versioning" "runner" {
+  bucket = aws_s3_bucket.runner.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+# Block public access to the S3 bucket
+resource "aws_s3_bucket_public_access_block" "runner" {
+  bucket = aws_s3_bucket.runner.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
