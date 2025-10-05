@@ -66,9 +66,7 @@ resource "aws_iam_openid_connect_provider" "oidc" {
 
 # IAM role for managing ECS tasks with OIDC federation
 resource "aws_iam_role" "ecs_task_manager" {
-  name                 = "${local.runner_id}-ecs-task-manager-${random_id.suffix.hex}"
-  path                 = var.iam_role_path
-  permissions_boundary = var.iam_role_permissions_boundary
+  name = "${local.runner_id}-ecs-task-manager-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -151,8 +149,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
 
 # S3 bucket for runner artifacts
 resource "aws_s3_bucket" "runner" {
-  bucket        = "${local.runner_id}-artifacts"
-  force_destroy = var.s3_bucket_force_destroy
+  bucket = "${local.runner_id}-artifacts"
 
   tags = local.common_tags
 }
@@ -167,80 +164,9 @@ resource "aws_s3_bucket_public_access_block" "runner" {
   restrict_public_buckets = true
 }
 
-# Enable S3 bucket versioning for compliance
-resource "aws_s3_bucket_versioning" "runner" {
-  bucket = aws_s3_bucket.runner.id
-
-  versioning_configuration {
-    status = var.s3_bucket_versioning_enabled ? "Enabled" : "Suspended"
-  }
-}
-
-# Enable S3 bucket encryption
-resource "aws_s3_bucket_server_side_encryption_configuration" "runner" {
-  count  = var.enable_s3_encryption ? 1 : 0
-  bucket = aws_s3_bucket.runner.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm     = var.kms_key_arn != null ? "aws:kms" : "AES256"
-      kms_master_key_id = var.kms_key_arn
-    }
-    bucket_key_enabled = var.kms_key_arn != null ? true : false
-  }
-}
-
-# S3 bucket lifecycle policy for cost management
-resource "aws_s3_bucket_lifecycle_configuration" "runner" {
-  bucket = aws_s3_bucket.runner.id
-
-  rule {
-    id     = "expire-old-versions"
-    status = var.s3_bucket_versioning_enabled ? "Enabled" : "Disabled"
-
-    noncurrent_version_expiration {
-      noncurrent_days = 90
-    }
-
-    noncurrent_version_transition {
-      noncurrent_days = 30
-      storage_class   = "STANDARD_IA"
-    }
-  }
-
-  rule {
-    id     = "abort-incomplete-multipart-uploads"
-    status = "Enabled"
-
-    abort_incomplete_multipart_upload {
-      days_after_initiation = 7
-    }
-  }
-}
-
-# CloudWatch log group for ECS tasks
-resource "aws_cloudwatch_log_group" "ecs_tasks" {
-  name              = "/aws/ecs/${local.runner_id}"
-  retention_in_days = var.cloudwatch_log_retention_days
-  kms_key_id        = var.kms_key_arn
-
-  tags = local.common_tags
-}
-
-# CloudWatch log group for ECS exec (if enabled)
-resource "aws_cloudwatch_log_group" "ecs_exec" {
-  name              = "/aws/ecs/${local.runner_id}/exec"
-  retention_in_days = var.cloudwatch_log_retention_days
-  kms_key_id        = var.kms_key_arn
-
-  tags = local.common_tags
-}
-
 # IAM role for ECS task execution
 resource "aws_iam_role" "execution" {
-  name                 = "${local.runner_id}-execution-${random_id.suffix.hex}"
-  path                 = var.iam_role_path
-  permissions_boundary = var.iam_role_permissions_boundary
+  name = "${local.runner_id}-execution-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -264,37 +190,9 @@ resource "aws_iam_role_policy_attachment" "execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Additional IAM policy for CloudWatch logs with KMS encryption support
-resource "aws_iam_role_policy" "execution_cloudwatch" {
-  count = var.kms_key_arn != null ? 1 : 0
-  name  = "${local.runner_id}-execution-cloudwatch-policy"
-  role  = aws_iam_role.execution.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "kms:Decrypt",
-          "kms:GenerateDataKey"
-        ]
-        Resource = var.kms_key_arn
-        Condition = {
-          StringEquals = {
-            "kms:ViaService" = "logs.${var.region}.amazonaws.com"
-          }
-        }
-      }
-    ]
-  })
-}
-
 # IAM role for ECS tasks
 resource "aws_iam_role" "task" {
-  name                 = "${local.runner_id}-task-${random_id.suffix.hex}"
-  path                 = var.iam_role_path
-  permissions_boundary = var.iam_role_permissions_boundary
+  name = "${local.runner_id}-task-${random_id.suffix.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
