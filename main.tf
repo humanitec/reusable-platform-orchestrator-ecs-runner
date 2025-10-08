@@ -14,10 +14,13 @@ resource "random_id" "suffix" {
 }
 
 locals {
-  runner_id          = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
-  create_ecs_cluster = var.existing_ecs_cluster_name == null
-  ecs_cluster_name   = var.existing_ecs_cluster_name != null ? var.existing_ecs_cluster_name : aws_ecs_cluster.main[0].name
-  ecs_cluster_arn    = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : "arn:aws:ecs:${var.region}:*:cluster/${var.existing_ecs_cluster_name}"
+  runner_id               = var.runner_id != null ? var.runner_id : random_id.runner_id[0].hex
+  create_ecs_cluster      = var.existing_ecs_cluster_name == null
+  ecs_cluster_name        = var.existing_ecs_cluster_name != null ? var.existing_ecs_cluster_name : aws_ecs_cluster.main[0].name
+  ecs_cluster_arn         = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : "arn:aws:ecs:${var.region}:*:cluster/${var.existing_ecs_cluster_name}"
+  create_oidc_provider    = var.existing_oidc_provider_arn == null
+  oidc_provider_arn       = var.existing_oidc_provider_arn != null ? var.existing_oidc_provider_arn : aws_iam_openid_connect_provider.oidc[0].arn
+  oidc_hostname           = var.oidc_hostname
   common_tags = merge(
     {
       ManagedBy = "terraform"
@@ -55,7 +58,8 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 
 # OIDC provider for Humanitec federation
 resource "aws_iam_openid_connect_provider" "oidc" {
-  url = "https://oidc.humanitec.dev"
+  count = local.create_oidc_provider ? 1 : 0
+  url = "https://${local.oidc_hostname}"
   client_id_list = [
     "sts.amazonaws.com",
   ]
@@ -75,12 +79,12 @@ resource "aws_iam_role" "ecs_task_manager" {
         Action = "sts:AssumeRoleWithWebIdentity"
         Effect = "Allow"
         Principal = {
-          Federated = aws_iam_openid_connect_provider.oidc.arn
+          Federated = local.oidc_provider_arn
         }
         Condition = {
           StringEquals = {
-            "oidc.humanitec.dev:aud" = "sts.amazonaws.com"
-            "oidc.humanitec.dev:sub" = "${var.humanitec_org_id}+${local.runner_id}"
+            "${local.oidc_hostname}:aud" = "sts.amazonaws.com"
+            "${local.oidc_hostname}:sub" = "${var.humanitec_org_id}+${local.runner_id}"
           }
         }
       }

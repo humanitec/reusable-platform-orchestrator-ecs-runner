@@ -47,3 +47,15 @@ variable "humanitec_org_id" {
   description = "The Humanitec organization ID for OIDC federation"
   type        = string
 }
+
+variable "existing_oidc_provider_arn" {
+  description = "The ARN of an existing OIDC provider to use. If not provided, a new OIDC provider will be created"
+  type        = string
+  default     = null
+}
+
+variable "oidc_hostname" {
+  description = "The hostname of the OIDC provider. Defaults to oidc.humanitec.dev"
+  type        = string
+  default     = "oidc.humanitec.dev"
+}

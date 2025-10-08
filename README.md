@@ -99,6 +99,32 @@ module "ecs_runner" {
 }
 ```
 
+### With Existing OIDC Provider
+
+```hcl
+module "ecs_runner" {
+  source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
+  
+  region                     = "us-east-1"
+  subnet_ids                 = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id           = "my-org-id"
+  existing_oidc_provider_arn = "arn:aws:iam::123456789012:oidc-provider/oidc.humanitec.dev"
+}
+```
+
+### With Custom OIDC Hostname
+
+```hcl
+module "ecs_runner" {
+  source = "github.com/astromechza/reusable-platform-orchestrator-ecs-runner"
+  
+  region           = "us-east-1"
+  subnet_ids       = ["subnet-12345678", "subnet-87654321"]
+  humanitec_org_id = "my-org-id"
+  oidc_hostname    = "custom-oidc.example.com"
+}
+```
+
 ## Variables
 
 | Name | Description | Type | Default | Required |
@@ -109,6 +135,8 @@ module "ecs_runner" {
 | runner_id | The ID of the runner. If not provided, one will be generated using runner_id_prefix | `string` | `null` | no |
 | runner_id_prefix | The prefix to use when generating a runner ID. Only used if runner_id is not provided | `string` | `"runner"` | no |
 | existing_ecs_cluster_name | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string` | `null` | no |
+| existing_oidc_provider_arn | The ARN of an existing OIDC provider to use. If not provided, a new OIDC provider will be created | `string` | `null` | no |
+| oidc_hostname | The hostname of the OIDC provider. Defaults to oidc.humanitec.dev | `string` | `"oidc.humanitec.dev"` | no |
 | security_group_ids | Optional list of security group IDs to attach to ECS tasks | `list(string)` | `[]` | no |
 | additional_tags | Additional tags to apply to resources created by this module | `map(string)` | `{}` | no |
 
