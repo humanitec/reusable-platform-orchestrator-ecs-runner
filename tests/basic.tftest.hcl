@@ -97,3 +97,43 @@ run "test_with_security_groups" {
 
   # This test validates that the plan succeeds with security groups specified
 }
+
+run "test_with_existing_oidc_provider" {
+  command = plan
+
+  variables {
+    region                     = "us-east-1"
+    subnet_ids                 = ["subnet-test789"]
+    humanitec_org_id           = "test-org-jkl"
+    existing_oidc_provider_arn = "arn:aws:iam::123456789012:oidc-provider/oidc.humanitec.dev"
+  }
+
+  # This test validates that the plan succeeds when using an existing OIDC provider
+}
+
+run "test_with_custom_oidc_hostname" {
+  command = plan
+
+  variables {
+    region           = "eu-central-1"
+    subnet_ids       = ["subnet-test012"]
+    humanitec_org_id = "test-org-mno"
+    oidc_hostname    = "custom-oidc.example.com"
+  }
+
+  # This test validates that the plan succeeds with a custom OIDC hostname
+}
+
+run "test_with_existing_oidc_and_custom_hostname" {
+  command = plan
+
+  variables {
+    region                     = "ap-northeast-1"
+    subnet_ids                 = ["subnet-test345"]
+    humanitec_org_id           = "test-org-pqr"
+    existing_oidc_provider_arn = "arn:aws:iam::123456789012:oidc-provider/custom-oidc.example.com"
+    oidc_hostname              = "custom-oidc.example.com"
+  }
+
+  # This test validates that the plan succeeds when using an existing OIDC provider with custom hostname
+}
