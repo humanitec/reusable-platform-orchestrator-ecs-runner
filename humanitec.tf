@@ -10,11 +10,11 @@ resource "platform-orchestrator_serverless_ecs_runner" "runner" {
       region             = var.region
       cluster            = local.ecs_cluster_name
       execution_role_arn = aws_iam_role.execution.arn
-      subnets            = var.subnets
+      task_role_arn      = aws_iam_role.task.arn
 
-      task_role_arn        = aws_iam_role.task.arn
-      is_public_ip_enabled = false
+      subnets              = var.subnet_ids
       security_groups      = var.security_group_ids
+      is_public_ip_enabled = false
 
       environment = var.environment
       secrets     = var.secrets
@@ -24,7 +24,7 @@ resource "platform-orchestrator_serverless_ecs_runner" "runner" {
   state_storage_configuration = {
     type = "s3"
     s3_configuration = {
-      bucket = aws_s3_bucket.state.name
+      bucket = aws_s3_bucket.state.bucket
     }
   }
 }
