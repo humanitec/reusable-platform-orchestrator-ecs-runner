@@ -137,3 +137,19 @@ run "test_with_existing_oidc_and_custom_hostname" {
 
   # This test validates that the plan succeeds when using an existing OIDC provider with custom hostname
 }
+
+run "test_region_is_used_in_resources" {
+  command = plan
+
+  variables {
+    region                    = "us-west-2"
+    subnet_ids                = ["subnet-region-test"]
+    humanitec_org_id          = "test-org-region"
+    existing_ecs_cluster_name = "existing-cluster-region-test"
+  }
+
+  assert {
+    condition     = can(regex("arn:aws:ecs:us-west-2:.*:cluster/existing-cluster-region-test", output.ecs_cluster_arn))
+    error_message = "ECS cluster ARN should include the region us-west-2"
+  }
+}
