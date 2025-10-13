@@ -15,7 +15,7 @@ output "task_role_arn" {
 
 output "runner_id" {
   description = "The ID of the runner"
-  value       = local.runner_id
+  value       = platform-orchestrator_serverless_ecs_runner.runner.id
 }
 
 output "s3_bucket" {
@@ -31,9 +31,4 @@ output "ecs_cluster_name" {
 output "ecs_cluster_arn" {
   description = "The ARN of the ECS cluster"
   value       = local.create_ecs_cluster ? aws_ecs_cluster.main[0].arn : ""
-}
-
-output "ecs_task_manager_role_arn" {
-  description = "The ARN of the IAM role for managing ECS tasks"
-  value       = aws_iam_role.ecs_task_manager.arn
 }
