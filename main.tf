@@ -31,8 +31,9 @@ locals {
 
 # Create a new ECS cluster if one is not provided
 resource "aws_ecs_cluster" "main" {
-  count = local.create_ecs_cluster ? 1 : 0
-  name  = "${local.runner_id}-cluster-${random_id.suffix.hex}"
+  count  = local.create_ecs_cluster ? 1 : 0
+  region = var.region
+  name   = "${local.runner_id}-cluster-${random_id.suffix.hex}"
 
   setting {
     name  = "containerInsights"
@@ -63,7 +64,6 @@ resource "aws_iam_openid_connect_provider" "oidc" {
   client_id_list = [
     "sts.amazonaws.com",
   ]
-  thumbprint_list = ["9e99a48a9960b14926bb7f3b02e22da2b0ab7280"]
 
   tags = local.common_tags
 }
@@ -151,16 +151,17 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
   })
 }
 
-# S3 bucket for runner artifacts
-resource "aws_s3_bucket" "runner" {
-  bucket = "${local.runner_id}-artifacts"
+# S3 bucket for runner state files
+resource "aws_s3_bucket" "state" {
+  bucket = "${local.runner_id}-state"
+  region = var.region
 
   tags = local.common_tags
 }
 
 # Block public access to the S3 bucket
 resource "aws_s3_bucket_public_access_block" "runner" {
-  bucket = aws_s3_bucket.runner.id
+  bucket = aws_s3_bucket.state.id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -237,8 +238,8 @@ resource "aws_iam_role_policy" "task_s3" {
           "s3:ListBucket"
         ]
         Resource = [
-          aws_s3_bucket.runner.arn,
-          "${aws_s3_bucket.runner.arn}/*"
+          aws_s3_bucket.state.arn,
+          "${aws_s3_bucket.state.arn}/*"
         ]
       }
     ]
