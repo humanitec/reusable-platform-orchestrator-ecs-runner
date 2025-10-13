@@ -47,6 +47,7 @@ resource "aws_ecs_cluster" "main" {
 resource "aws_ecs_cluster_capacity_providers" "main" {
   count        = local.create_ecs_cluster ? 1 : 0
   cluster_name = aws_ecs_cluster.main[0].name
+  region       = var.region
 
   capacity_providers = ["FARGATE", "FARGATE_SPOT"]
 
@@ -162,6 +163,7 @@ resource "aws_s3_bucket" "state" {
 # Block public access to the S3 bucket
 resource "aws_s3_bucket_public_access_block" "runner" {
   bucket = aws_s3_bucket.state.id
+  region = var.region
 
   block_public_acls       = true
   block_public_policy     = true
