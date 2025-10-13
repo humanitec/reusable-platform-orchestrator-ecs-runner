@@ -8,12 +8,12 @@ This module provides a reusable configuration for deploying an ECS-based runner 
 
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| terraform | >= 1.6.0 |
-| aws | >= 4.0 |
-| random | >= 3.0 |
-| platform-orchestrator | ~> 2.0 |
+| Name                  | Version  |
+| --------------------- | -------- |
+| terraform             | >= 1.6.0 |
+| aws                   | >= 4.0   |
+| random                | >= 3.0   |
+| platform-orchestrator | ~> 2.0   |
 
 ## Usage
 
@@ -127,31 +127,30 @@ module "ecs_runner" {
 
 ## Variables
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| region | The AWS region where resources will be created | `string` | n/a | yes |
-| subnet_ids | List of subnet IDs where ECS tasks will be launched. At least one subnet is required | `list(string)` | n/a | yes |
-| humanitec_org_id | The Humanitec organization ID for OIDC federation | `string` | n/a | yes |
-| runner_id | The ID of the runner. If not provided, one will be generated using runner_id_prefix | `string` | `null` | no |
-| runner_id_prefix | The prefix to use when generating a runner ID. Only used if runner_id is not provided | `string` | `"runner"` | no |
-| existing_ecs_cluster_name | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string` | `null` | no |
-| existing_oidc_provider_arn | The ARN of an existing OIDC provider to use. If not provided, a new OIDC provider will be created | `string` | `null` | no |
-| oidc_hostname | The hostname of the OIDC provider. Defaults to oidc.humanitec.dev | `string` | `"oidc.humanitec.dev"` | no |
-| security_group_ids | Optional list of security group IDs to attach to ECS tasks | `list(string)` | `[]` | no |
-| additional_tags | Additional tags to apply to resources created by this module | `map(string)` | `{}` | no |
+| Name                       | Description                                                                                                   | Type           | Default                | Required |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------- | :------: |
+| region                     | The AWS region where resources will be created                                                                | `string`       | n/a                    |   yes    |
+| subnet_ids                 | List of subnet IDs where ECS tasks will be launched. At least one subnet is required                          | `list(string)` | n/a                    |   yes    |
+| humanitec_org_id           | The Humanitec organization ID for OIDC federation                                                             | `string`       | n/a                    |   yes    |
+| runner_id                  | The ID of the runner. If not provided, one will be generated using runner_id_prefix                           | `string`       | `null`                 |    no    |
+| runner_id_prefix           | The prefix to use when generating a runner ID. Only used if runner_id is not provided                         | `string`       | `"runner"`             |    no    |
+| existing_ecs_cluster_name  | The name of an existing ECS cluster to use. If not provided, a new Fargate-compatible cluster will be created | `string`       | `null`                 |    no    |
+| existing_oidc_provider_arn | The ARN of an existing OIDC provider to use. If not provided, a new OIDC provider will be created             | `string`       | `null`                 |    no    |
+| oidc_hostname              | The hostname of the OIDC provider. Defaults to oidc.humanitec.dev                                             | `string`       | `"oidc.humanitec.dev"` |    no    |
+| security_group_ids         | Optional list of security group IDs to attach to ECS tasks                                                    | `list(string)` | `[]`                   |    no    |
+| additional_tags            | Additional tags to apply to resources created by this module                                                  | `map(string)`  | `{}`                   |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| humanitec_role_arn | The ARN of the IAM role for Humanitec |
-| execution_role_arn | The ARN of the ECS task execution role |
-| task_role_arn | The ARN of the ECS task role |
-| ecs_task_manager_role_arn | The ARN of the IAM role for managing ECS tasks |
-| runner_id | The ID of the runner |
-| s3_bucket | The name of the S3 bucket |
-| ecs_cluster_name | The name of the ECS cluster (either existing or newly created) |
-| ecs_cluster_arn | The ARN of the ECS cluster |
+| Name               | Description                                                    |
+| ------------------ | -------------------------------------------------------------- |
+| humanitec_role_arn | The ARN of the IAM role for Humanitec                          |
+| execution_role_arn | The ARN of the ECS task execution role                         |
+| task_role_arn      | The ARN of the ECS task role                                   |
+| runner_id          | The ID of the runner                                           |
+| s3_bucket          | The name of the S3 bucket                                      |
+| ecs_cluster_name   | The name of the ECS cluster (either existing or newly created) |
+| ecs_cluster_arn    | The ARN of the ECS cluster                                     |
 
 ## License
 
