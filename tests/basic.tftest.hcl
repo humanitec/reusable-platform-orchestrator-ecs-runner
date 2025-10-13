@@ -7,6 +7,8 @@ provider "aws" {
   secret_key                  = "mock_secret_key"
 }
 
+mock_provider "platform-orchestrator" {}
+
 run "test_with_explicit_runner_id" {
   command = plan
 
