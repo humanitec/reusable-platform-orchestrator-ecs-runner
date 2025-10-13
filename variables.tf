@@ -59,3 +59,15 @@ variable "oidc_hostname" {
   type        = string
   default     = "oidc.humanitec.dev"
 }
+
+variable "environment" {
+  description = "Plain text environment variables to expose in the runner"
+  type        = map(string)
+  default     = {}
+}
+
+variable "secrets" {
+  description = "Secret environment variables to expose in the runner. Each value should be a secret or property ARN"
+  type        = map(string)
+  default     = {}
+}
