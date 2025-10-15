@@ -69,6 +69,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
         ]
         Resource = [
           provider::aws::arn_build("aws", "ecs", local.ecs_cluster_arn_parts.region, local.ecs_cluster_arn_parts.account_id, "task-definition/humanitec_*"),
+          provider::aws::arn_build("aws", "ecs", local.ecs_cluster_arn_parts.region, local.ecs_cluster_arn_parts.account_id, "task/${local.ecs_cluster_name}/*"),
         ]
       },
       {
