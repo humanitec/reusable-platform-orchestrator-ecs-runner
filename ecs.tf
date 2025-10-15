@@ -52,10 +52,17 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
       {
         Effect = "Allow"
         Action = [
+          "ecs:ListTaskDefinitions"
+        ]
+        # Unfortunately there are no further IAM condition keys we can scope this on.
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "ecs:RegisterTaskDefinition",
           "ecs:DeregisterTaskDefinition",
           "ecs:DeleteTaskDefinition",
-          "ecs:ListTaskDefinitions"
         ]
         Resource = local.ecs_cluster_arn
       },
