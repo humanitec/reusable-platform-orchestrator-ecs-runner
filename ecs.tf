@@ -55,7 +55,7 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
           "ecs:ListTaskDefinitions",
           "ecs:RegisterTaskDefinition",
           "ecs:DeregisterTaskDefinition",
-          "ecs:DeleteTaskDefinition",
+          "ecs:DeleteTaskDefinitions",
         ]
         # Unfortunately there isn't really a way to reduce the scope further here
         Resource = "*"
@@ -67,7 +67,12 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
           "ecs:UntagResource",
           "ecs:ListTagsForResource"
         ]
-        Resource = local.ecs_cluster_arn
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "ecs:cluster" = local.ecs_cluster_arn
+          }
+        }
       },
       {
         Effect = "Allow"
