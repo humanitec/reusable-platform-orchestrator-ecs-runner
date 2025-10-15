@@ -21,7 +21,7 @@ locals {
   ecs_cluster_arn_parts = provider::aws::arn_parse(local.ecs_cluster_arn)
   create_oidc_provider  = var.existing_oidc_provider_arn == null
   oidc_provider_arn     = var.existing_oidc_provider_arn != null ? var.existing_oidc_provider_arn : aws_iam_openid_connect_provider.oidc[0].arn
-  oidc_hostname        = var.oidc_hostname
+  oidc_hostname         = var.oidc_hostname
   common_tags = merge(
     {
       ManagedBy = "terraform"
