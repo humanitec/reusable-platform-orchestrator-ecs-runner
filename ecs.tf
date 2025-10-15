@@ -67,12 +67,9 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
           "ecs:UntagResource",
           "ecs:ListTagsForResource"
         ]
-        Resource = "*"
-        Condition = {
-          StringEquals = {
-            "ecs:cluster" = local.ecs_cluster_arn
-          }
-        }
+        Resource = [
+          provider::aws::arn_build("aws", "iam", local.ecs_cluster_arn_parts.region, local.ecs_cluster_arn_parts.account_id, "task-definitions/humanitec_*"),
+        ]
       },
       {
         Effect = "Allow"
