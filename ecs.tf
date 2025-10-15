@@ -36,54 +36,48 @@ resource "aws_iam_role_policy" "ecs_task_manager" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
-        Action = [
-          "ecs:RunTask",
-          "ecs:DescribeTasks",
-          "ecs:ListTasks"
-        ]
-        Resource = "*"
-        Condition = {
-          StringEquals = {
-            "ecs:cluster" = local.ecs_cluster_arn
-          }
-        }
-      },
-      {
-        Effect = "Allow"
+        Effect = "Allow",
         Action = [
           "ecs:ListTaskDefinitions",
+          "ecs:DeregisterTaskDefinition"
+        ],
+        Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = [
           "ecs:RegisterTaskDefinition",
-          "ecs:DeregisterTaskDefinition",
-        ]
-        # Unfortunately there isn't really a way to reduce the scope further here
-        Resource = "*"
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "ecs:TagResource",
-          "ecs:UntagResource",
-          "ecs:ListTagsForResource",
-          "ecs:DeleteTaskDefinitions",
-        ]
+          "ecs:DeleteTaskDefinitions"
+        ],
         Resource = [
-          provider::aws::arn_build("aws", "ecs", local.ecs_cluster_arn_parts.region, local.ecs_cluster_arn_parts.account_id, "task-definition/humanitec_*"),
-          provider::aws::arn_build("aws", "ecs", local.ecs_cluster_arn_parts.region, local.ecs_cluster_arn_parts.account_id, "task/${local.ecs_cluster_name}/*"),
+          "arn:aws:ecs:${local.ecs_cluster_arn_parts.region}:${local.ecs_cluster_arn_parts.account_id}:task-definition/humanitec_*",
         ]
       },
       {
-        Effect = "Allow"
+        Effect = "Allow",
         Action = [
-          "iam:PassRole"
+          "ecs:ListTasks",
+          "ecs:DescribeTasks",
+          "ecs:RunTask",
+          "ecs:TagResource",
+        ],
+        Resource = [
+          "arn:aws:ecs:${local.ecs_cluster_arn_parts.region}:${local.ecs_cluster_arn_parts.account_id}:task-definition/humanitec_*",
+          "arn:aws:ecs:${local.ecs_cluster_arn_parts.region}:${local.ecs_cluster_arn_parts.account_id}:cluster/${local.ecs_cluster_name}",
+          "arn:aws:ecs:${local.ecs_cluster_arn_parts.region}:${local.ecs_cluster_arn_parts.account_id}:task/${local.ecs_cluster_name}/*",
+          "arn:aws:ecs:${local.ecs_cluster_arn_parts.region}:${local.ecs_cluster_arn_parts.account_id}:container-instance/${local.ecs_cluster_name}/*"
         ]
-        Resource = "*"
+      },
+      {
+        Effect   = "Allow",
+        Action   = "iam:PassRole",
+        Resource = "*",
         Condition = {
           StringLike = {
             "iam:PassedToService" = "ecs-tasks.amazonaws.com"
           }
         }
-      }
+      },
     ]
   })
 }
