@@ -4,6 +4,8 @@ resource "aws_s3_bucket" "state" {
   region = var.region
 
   tags = local.common_tags
+
+  force_destroy = var.force_delete_s3
 }
 
 # Block public access to the S3 bucket
