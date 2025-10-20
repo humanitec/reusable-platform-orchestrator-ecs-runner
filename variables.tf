@@ -71,3 +71,9 @@ variable "secrets" {
   type        = map(string)
   default     = {}
 }
+
+variable "force_delete_s3" {
+  description = "Force delete the S3 state files bucket on destroy even if it's not empty"
+  type        = bool
+  default     = false
+}
